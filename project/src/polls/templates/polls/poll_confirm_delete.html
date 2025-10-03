@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Usuń ankietę{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header text-danger">
+            <h2 class="h4 mb-0"><i class="bi bi-trash me-2"></i>Potwierdzenie usunięcia</h2>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-center">
+                Czy na pewno chcesz usunąć ankietę:<br>
+                <strong>"{{ poll.question }}"</strong>?
+            </p>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <form action="{% url 'polls:delete_poll' pk=poll.pk %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Tak, usuń</button>
+                </form>
+                <a href="{% url 'polls:list_poll' %}" class="btn btn-secondary">Anuluj</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

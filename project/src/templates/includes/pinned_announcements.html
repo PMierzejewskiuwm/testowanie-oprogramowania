@@ -1,0 +1,29 @@
+<div class="card mb-4">
+    <div class="card-header bg-warning text-white">
+        <h3 class="mb-0">Sponsorowane ogłoszenia</h3>
+    </div>
+    <div class="card-body">
+        {% if announcement_page_obj %}
+            {% for announcement in announcement_page_obj %}
+                <div class="mb-3 p-3 border rounded">
+                    <h2><a href="{{ announcement.get_absolute_url }}" class="text-decoration-none">{{ announcement.title }}</a></h2>
+                    <p class="text-muted">
+                            Miejsce: {{ announcement.place }} |
+                            Cena: {{ announcement.price }} zł |
+                            Dodano: {{ announcement.date|date:"Y-m-d" }}
+                    </p>
+                    <p style="word-break: break-word;">Opis:{{ announcement.description|truncatewords:30 }}</p>
+                    {% if announcement.banner %}
+                       <p> <img src="{{ announcement.banner.url }}" alt="{{ announcement.title }}" class="img-fluid rounded" style="max-height: 150px;"></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            {% with page_obj=announcement_page_obj page_param='announcement_page' %}
+                {% include 'includes/pagination.html' %}
+            {% endwith %}
+        {% else %}
+            <div class="alert alert-info">Brak przypiętych ogłoszeń</div>
+        {% endif %}
+    </div>
+</div>

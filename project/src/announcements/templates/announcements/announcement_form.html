@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+  {% if object %}Edytuj{% else %}Dodaj Nowe{% endif %} Ogłoszenie
+{% endblock %}
+
+{% block content %}
+<section>
+  <div class="form-container">
+    <h2>{% if object %}Edytuj{% else %}Dodaj nowe{% endif %} ogłoszenie</h2>
+    <form 
+      action="{% if object %}{% url 'announcements:edit_announcement' object.id %}{% else %}{% url 'announcements:create_announcement' %}{% endif %}" 
+      method="POST" 
+      enctype="multipart/form-data"
+    >
+             {% csrf_token %}
+
+         {% for field in form %}
+             {% include 'includes/form_field.html' with field=field %}
+         {% endfor %}
+
+         <div class="display_event">
+             <button type="submit" class="btn btn-primary">
+                 {% if object %}Zapisz zmiany{% else %}Dodaj ogłoszenie{% endif %}
+             </button>
+                 <a href="{% url 'announcements:user_announcement_list' %}" class="btn btn-greyt">
+                     Anuluj
+                 </a>
+         </div>
+     </form>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block title %}Usuń Wydarzenie{% endblock %}
+
+{% block content %}
+<div class="form-container" >
+    <h2>Potwierdzenie usunięcia</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message_new" >
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <p class="fontsize">
+        Czy na pewno chcesz usunąć wydarzenie:<br>
+        <strong>"{{ object.event_name }}"</strong> ({{ object.event_date|date:"Y-m-d H:i" }})?
+    </p>
+   <center>
+    <form method="post" class="displaymanage">
+        {% csrf_token %}
+        <button class="btn btn-danger">
+            Tak, usuń
+        </button>
+    </form>
+
+    <a href="{% url 'events:user_event_list' %}" class="btn btn-grey">
+        Anuluj
+    </a>
+ </center>
+</div>
+{% endblock %}

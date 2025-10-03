@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+{% load static %}
+{% load events_and_announcements_tags %}
+{% load photo_gallery_tags %}
+{% load polls_tags %}
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.20.1/ol.css" type="text/css" media="all" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link href="/static/gis/css/ol3.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.20.1/ol.js"></script>
+<script type="text/javascript" src="/static/gis/js/OLMapWidget.js"></script>
+
+
+<link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+<script src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<script src="{% static 'js/main.js'%}" defer></script>
+<title>
+{% block title %}
+{% endblock %}
+
+</title>
+</head>
+<body class="tlo">
+<div class="tlo_strona">
+<div class="banner">
+    <text id="banner-text">
+        <a href="http://localhost:8000/" >www.wypoczynkowy.com</a>
+    </text>
+</div>
+<div class="menu">
+    <ul class="menu-list">
+        <li class="dropdown">
+            <a href="{% url 'announcements:list_announcement' %}">Ogłoszenia</a>
+            <ul class="dropdown-content">
+                <li><a href="{% url 'announcements:create_announcement' %}">Dodaj Ogłoszenie</a></li>
+                <li><a href="{% url 'announcements:list_archived_announcement' %}">Zarchiwizowane Ogłoszenia</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="{% url 'events:list_event' %}">Wydarzenia/Imprezy</a>
+            <ul class="dropdown-content">
+                <li><a href="{% url 'events:create_event' %}">Dodaj wydarzenie</a></li>
+                <li><a href="{% url 'events:list_archived_event' %}">Zarchiwizowane wydarzenia</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="{% url 'photo_gallery:gallery_list' %}">Galerie Zdjęć</a>
+            <ul class="dropdown-content">
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'photo_gallery:gallery_create' %}">Dodaj nową galerię</a></li>
+                {% endif %}
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="{% url 'polls:list_poll' %}">Ankiety</a>
+            <ul class="dropdown-content">
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'polls:create_poll' %}">Dodaj ankietę</a></li>
+                {% endif %}
+                <li><a href="{% url 'polls:list_archived_poll' %}">Zaarchiwizowane ankiety</a></li>
+            </ul>
+        </li>
+
+        <li><a href="{% url 'paid_service' %}">Usługi Płatne</a></li>
+        <li><a href="{% url 'about' %}">O Serwisie</a></li>
+        <li><a href="{% url 'info_help' %}">Informacje i Pomoc</a></li>
+        <li><a href="{% url 'formularz' %}">Kontakt</a></li>
+        <li><a href="{% url 'admin:index' %}">Panel Administracyjny</a></li>
+    </ul>
+</div>
+<div class="lpanel">
+{% if messages and request.path == '/' %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message message-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+    <div class="login-container" style="min-height: 300px;margin-left: 10%">
+        {% if user.is_authenticated %}
+            <div class="display-4 fw-bold mb-4" style="font-size: 1.5rem;margin-left: 15%">
+                Jesteś zalogowany
+            </div>
+            <div class="display-4" style="font-size: 1.2rem;margin-left: 15%">
+                Witaj, {{ user.username }}!
+            </div>
+
+            <div style="width: 200px;">
+              <a href="{% url 'user_profile:profile' %}" class="btn btn-outline-primary btn-lg w-100 text-center style" style="margin-left: 8%;">Przejdź do profilu</a>
+            </div>
+            <form action="{% url 'users:logout' %}" method="post" class="d-inline-block mb-2" style="width: 200px; margin-left: 10%">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-lg w-100 text-center">Wyloguj się</button>
+            </form>
+        {% else %}
+            <div class="d-grid gap-3 px-2" style="margin-left: 30%">
+                <div class="text-center fw-semibold text-dark mx-auto" style="max-width: fit-content; font-size: 1.1rem;">
+                    Posiadasz już konto?
+                </div>
+                <button class="btn btn-outline-primary btn-lg w-100 text-center" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    Zaloguj się
+                </button>
+
+                <div class="text-center fw-semibold text-dark mx-auto" style="max-width: fit-content; font-size: 1.1rem;">
+                    Chcesz utworzyć nowe konto?
+                </div>
+                <a href="{% url 'users:register' %}" class="btn btn-outline-secondary btn-lg w-100 text-center">
+                    Zarejestruj się
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% random_poll %}
+</div>
+    <div class="cpanel">
+        <div class="content-area" >
+            {% block pinned_content %}
+                {% if show_pinned_content|default:True %}
+                    {% if request.path == '/' %}
+                        {% include 'includes/welcome.html' %}
+                        {% include 'includes/pinned_events.html' %}
+                        {% include 'includes/pinned_announcements.html' %}
+                    {% endif %}
+                {% endif %}
+            {% endblock %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+        <div class="rpanel">
+            {% random_gallery_photo %}
+            <div class="row">
+                <div class="col-12 mb-4">{% latest_events %}</div>
+                <div class="col-12 mb-4">{% top_rated_events %}</div>
+                <div class="col-12 mb-4">{% latest_announcements %}</div>
+                <div class="col-12 mb-4">{% top_rated_announcements %}</div>
+                <div class="col-12 mb-4">{% latest_galleries %}</div>
+                <div class="col-12 mb-4">{% top_rated_galleries %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loginModal" class="modal fade {% if show_login_modal %}show d-block{% endif %}" tabindex="-1" aria-hidden="true" {% if show_login_modal %}style="display: block;"{% endif %}>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        {% include 'users/login.html' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

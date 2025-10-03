@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block title %}Usuń Ogłoszenie{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Potwierdzenie usunięcia</h2>
+    
+    <p>Czy na pewno chcesz usunąć ogłoszenie:<br>
+    <strong>"{{ announcement.title }}"</strong>?</p>
+    
+    <center>
+    <form action="{% url 'announcements:delete_announcement' announcement.id %}" method="POST" style="display: inline-block;">
+        {% csrf_token %}
+        <button class="btn btn-danger">
+            Tak, usuń
+        </button>
+    </form>
+    
+    <a href="{% url 'announcements:user_announcement_list' %}" class="btn btn-grey">Anuluj</a>
+    </center>
+</div>
+
+{% endblock %}

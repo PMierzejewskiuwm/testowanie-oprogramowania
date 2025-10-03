@@ -1,0 +1,67 @@
+<div class="card border-0 shadow-sm mb-3;" style="margin-left: 19%">
+    <div class="card-header bg-success-subtle text-black">
+        <h5 class="poll-title mb-3 text-wrap text-break word-break-all">
+        {% if choices %}
+            <i>{{ poll.question }}</i>
+        {% else %}
+            <i class="text-center">Hmm... Nie mamy w tym momencie żadnej ankiety</i>
+        {% endif %}
+        </h5>
+    </div>
+    <div class="card-body p-3">
+    {% if choices %}
+      <div class="list-group list-group-flush">
+        {% for choice in choices %}
+          <div class="list-group-item border-0 px-0 py-2">
+            <div class="d-flex justify-content-between mb-1">
+              <strong class="d-block small text-break">{{ choice.text }}</strong>
+              <span class="text-muted small">{{ choice.percentage }}&#37;</span>
+            </div>
+
+            <div class="progress mb-1" style="height: 8px;">
+              <div
+                class="progress-bar bg-primary"
+                role="progressbar"
+                style="width: {{ choice.percentage|floatformat:0 }}%;"
+                aria-valuenow="{{ choice.percentage|floatformat:0 }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              ></div>
+            </div>
+
+            <div class="text-end">
+                <small class="text-muted">
+                    {{ choice.votes_count }} 
+                    {% if choice.votes_count == 1 %}
+                    głos
+                    {% elif choice.votes_count > 1 and choice.votes_count < 5 %}
+                    głosy
+                    {% else %}
+                    głosów
+                    {% endif %}
+                </small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="mt-2 pt-2 border-top text-center">
+        <span class="badge bg-light text-dark small p-1">
+          <i class="bi bi-graph-up"></i>
+          Łączne głosy: {{ total_votes }}
+        </span>
+      </div>
+    {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-pie-chart text-muted mb-2" style="font-size: 1.5rem;"></i>
+        <p class="text-secondary mb-1 small">Brak głosów</p>
+      </div>
+    {% endif %}
+    {% if poll %}
+      <a href="{% url 'polls:poll_detail' poll.pk %}" class="text-reset text-decoration-none">
+        <p class="text-secondary mb-1 pt-3 small">Zagłosuj teraz</p>
+      </a>
+    {% endif %}
+
+  </div>
+</div>

@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+{% load edit_tags %}
+
+{% block content %}
+{% if messages %}
+    <div class="container my-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+<div class="container mt-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between 
+                align-items-start align-items-md-center mb-4 text-primary">
+        <h1 class="display-5 fw-bold text-break mb-3 mb-md-0" style="max-width: 100%;"><i>{{ poll.question }}</i></h1>
+        {% edit_tag 'polls' 'poll' poll.id 'bi-tools' 'Edytuj ankietę' %}
+    </div>
+
+    {% if choices %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for choice in choices %}
+                    <div class="list-group-item border-0 px-0 py-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="d-block text-break">{{ choice.text }}</strong>
+                            <span class="text-muted">{{ choice.percentage }}%</span>
+                        </div>
+                        
+                        <div class="progress mb-1" style="height: 10px;">
+                            <div class="progress-bar bg-primary" 
+                                role="progressbar" 
+                                style="width: {{ choice.percentage|floatformat:0 }}%;" 
+                                aria-valuenow="{{ choice.percentage|floatformat:0 }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <small class="text-muted">
+                                {{ choice.votes_count }} 
+                                {% if choice.votes_count == 1 %}
+                                głos
+                                {% elif choice.votes_count > 1 and choice.votes_count < 5 %}
+                                głosy
+                                {% else %}
+                                głosów
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4 pt-2 border-top text-center">
+                    <span class="badge bg-light text-dark fs-6 p-2">
+                        <i class="bi bi-graph-up"></i> 
+                        Łączne głosy: {{ total_votes }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-pie-chart display-4 text-muted mb-3"></i>
+                <h3 class="text-secondary">Brak głosów</h3>
+                <p class="text-muted">Ta ankieta nie ma jeszcze żadnych głosów</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated and poll.creator == user and not poll.archive_date %}
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <form method="post" action="{% url 'polls:archive_poll' pk=poll.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-lock"></i> Zamknij ankietę
+                </button>
+            </form>
+            <a href="{% url 'polls:delete_poll' pk=poll.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Usuń ankietę
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

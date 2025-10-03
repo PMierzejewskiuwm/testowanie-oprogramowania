@@ -1,0 +1,35 @@
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Najnowsze ogłoszenia</h4>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for announcement in announcements %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+                    {% if announcement.banner %}
+                    <img src="{{ announcement.banner.url }}"
+                         alt="{{ announcement.title }}"
+                         class="rounded me-3"
+                         width="50"
+                         height="40"
+                         style="object-fit: cover;">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center rounded me-3 text-center"
+                             style="width:50px; height:40px; background-color:#fff; border:1px solid #ccc; font-size:10px; color:#888;">
+                            Brak zdjęcia
+                        </div>
+                    {% endif %}
+                    <a href="{{ announcement.get_absolute_url }}" class="text-decoration-none">
+                        {{ announcement.title }}
+                    </a>
+                </div>
+                <div class="text-end">
+                        <div class="text-muted small">Data utworzenia</div>
+                        <div class="text-muted">{{ announcement.date|date:"Y-m-d H:i" }}</div>
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">Brak dostępnych ogłoszeń</li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+  <h2>Zmiana emaila</h2>
+
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" class="form-container">
+    {% csrf_token %}
+      {{ form }}
+    <button type="submit" class="btn btn-info">Zmień email</button>
+  </form>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'user_profile:account_settings' %}" class="btn btn-outline-primary">
+      Powrót do ustawień konta
+    </a>
+  </div>
+{% endblock %}

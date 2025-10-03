@@ -1,0 +1,10 @@
+django
+psycopg2
+pillow
+sorl-thumbnail
+django-recaptcha
+dotenv
+django-widget-tweaks
+django-celery-beat
+celery
+redis

@@ -1,0 +1,95 @@
+{% load widget_tweaks %}
+
+<div class="comments-section">
+    <h2 class="h5 mb-4">Komentarze ({{ comments.count }})</h2>
+
+    {% if user.is_authenticated %}
+        <div class="mb-4">
+            <form method="post" action="{% url 'comments_and_ratings:add_comment' app_label=content_type.app_label model_name=content_type.model object_id=object_id %}">
+                {% csrf_token %}
+                {{ comment_form.content|add_class:"form-control mb-2" }}
+                {{ comment_form.captcha }}
+                <button type="submit" class="btn btn-primary">Dodaj komentarz</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="comments-list">
+        {% for comment in comments %}
+            <div class="card mb-4 {% if not comment.is_active %}bg-light text-muted{% endif %}">
+                <div class="card-body text-start">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>{{ comment.user.username }}</strong>
+                        <small class="text-muted">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+
+                    <div class="mb-3 comment-content">
+                        {% if comment.is_active %}
+                            {{ comment.content|linebreaks }}
+                        {% else %}
+                            <em>Komentarz został usunięty</em>
+                        {% endif %}
+                    </div>
+
+                    {% if comment.is_active %}
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% if user.is_authenticated %}
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}">Odpowiedz</button>
+                            {% endif %}
+                            {% if user == comment.user or user.is_staff %}
+                                <a href="{% url 'comments_and_ratings:edit_comment' pk=comment.id %}" class="btn btn-sm btn-outline-primary">Edytuj</a>
+                                <a href="{% url 'comments_and_ratings:delete_comment' pk=comment.id %}" class="btn btn-sm btn-outline-danger">Usuń</a>
+                            {% endif %}
+                        </div>
+
+                        <div class="collapse" id="reply-form-{{ comment.id }}">
+                            <form method="post" action="{% url 'comments_and_ratings:add_reply' comment_id=comment.id %}">
+                                {% csrf_token %}
+                                <textarea name="content" rows="2" class="form-control mb-2" placeholder="Odpowiedz na komentarz..." required></textarea>
+                                <div class="mb-2">
+                                    {{ reply_form.captcha }}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary btn-sm">Dodaj odpowiedź</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#reply-form-{{ comment.id }}">Anuluj</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+
+                    {% if comment.get_replies %}
+                        <div class="mt-4 border-start ps-3">
+                            {% for reply in comment.get_replies %}
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <strong>{{ reply.user.username }}</strong>
+                                        <span class="text-muted">{{ reply.created_at|date:"Y-m-d H:i" }}</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        {% if reply.is_active %}
+                                            {{ reply.content|linebreaks }}
+                                        {% else %}
+                                            <em>Odpowiedź została usunięta</em>
+                                        {% endif %}
+                                    </div>
+                                    {% if reply.is_active %}
+                                        {% if reply.user == request.user or request.user.is_staff %}
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'comments_and_ratings:edit_comment' pk=reply.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i> Edytuj
+                                            </a>
+                                            <a href="{% url 'comments_and_ratings:delete_comment' pk=reply.id %}" class="btn btn-sm btn-outline-danger">Usuń</a>
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Brak komentarzy. Bądź pierwszy!</p>
+        {% endfor %}
+    </div>
+</div>

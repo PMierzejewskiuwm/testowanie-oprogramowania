@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% if object %}Edytuj{% else %}Dodaj{% endif %} Zdjęcie{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{% if object %}Edytuj{% else %}Dodaj{% endif %} zdjęcie {% if gallery %}do galerii "{{ gallery.title }}"{% endif %}</h2>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            {% include 'includes/form_field.html' with field=field %}
+        {% endfor %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Zapisz zmiany{% else %}Dodaj zdjęcie{% endif %}
+            </button>
+            {% if gallery %}
+                <a href="{% url 'photo_gallery:gallery_detail' slug=gallery.slug %}" class="btn btn-secondary">Anuluj</a>
+            {% else %}
+                <a href="{% url 'photo_gallery:gallery_list' %}" class="btn btn-secondary">Anuluj</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

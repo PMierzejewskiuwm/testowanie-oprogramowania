@@ -1,0 +1,178 @@
+{% extends 'layout.html' %}
+{% load querystring_tags %}
+{% load thumbnail %}
+
+{% block title %}
+    {% if is_my_events %}Moje
+    {% elif is_archived %}Zarchiwizowane
+    {% else %}Wszystkie{% endif %} Wydarzenia
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        <div class="container my-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="container my-4">
+        <h2 class="mb-4 text-center">
+            {% if is_my_events %}
+                Moje wydarzenia
+            {% elif is_archived %}
+                Zarchiwizowane wydarzenia
+            {% else %}
+                Wszystkie wydarzenia
+            {% endif %}
+        </h2>
+
+        {% if is_my_events %}
+            <div class="text-center mb-4">
+                <a href="{% url 'events:create_event' %}" class="btn btn-success">+ Dodaj nowe</a>
+            </div>
+        {% endif %}
+
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-8">
+                <form method="get" action="" class="d-flex gap-2 align-items-center">
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Wyszukaj po nazwie..."
+                           value="{{ request.GET.keyword }}">
+                    <input type="hidden" name="filter" value="{{ current_filter }}">
+                    <button type="submit" class="btn btn-primary" style="height: 50px; width: 110px">Wyszukaj</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <aside class="col-md-3 mb-4">
+                <div class="bg-light p-3 rounded shadow-sm">
+                    <p class="mb-3"><strong>Filtry</strong></p>
+                    <form method="get" action="">
+                        <input type="hidden" name="filter" value="{{ current_filter }}">
+                        <div class="form-group mb-3">
+                            <label for="location">Miejsce:</label>
+                            <select name="location" id="location" class="form-control">
+                                <option value="">Wszystkie miejsca</option>
+                                {% for location in available_locations %}
+                                    <option value="{{ location }}" {% if location == selected_location %}selected{% endif %}>{{ location }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="sort_by">Sortuj według:</label>
+                            <select name="sort_by" class="form-control">
+                                {% for option in sort_options %}
+                                    <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>
+                                        {{ option.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-primary">Filtruj</button>
+                            <a href="{% if is_my_events %}{% url 'events:user_event_list' %}{% elif is_archived %}{% url 'events:list_archived_event' %}{% else %}{% url 'events:list_event' %}{% endif %}" class="btn btn-secondary">Wyczyść</a>
+                        </div>
+                    </form>
+                </div>
+            </aside>
+
+            <section class="col-md-9">
+                <div class="events-container">
+                    {% if events %}
+                        <div class="list-group">
+                            {% for event in events %}
+                                <div class="list-group-item list-group-item-action border rounded-3 mb-3 p-0 shadow-sm">
+                                    <div class="row g-0">
+                                        <div class="col-md-3">
+                                            <div class="position-relative h-100">
+                                                {% if event.image %}
+                                                    <a href="{% url 'events:detail_event' pk=event.pk %}">
+                                                        {% thumbnail event.image "400x300" crop="center" as im %}
+                                                            <img src="{{ im.url }}"
+                                                                 class="img-fluid rounded-start"
+                                                                 alt="{{ event.event_name }}"
+                                                                 style="height: 180px; width: 100%; object-fit: cover;">
+                                                        {% endthumbnail %}
+                                                    </a>
+                                                {% else %}
+                                                    <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                                                        <span class="text-muted">Brak zdjęcia</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-7">
+                                            <div class="card-body" style="height: 150px;">
+                                                <h5 class="card-title mb-1 ms-3 mt-3">
+                                                    <a href="{% url 'events:detail_event' pk=event.pk %}"
+                                                       class="text-decoration-none text-dark">
+                                                        <i>{{ event.event_name }}</i>
+                                                    </a>
+                                                </h5>
+
+                                                <div class="d-flex flex-wrap gap-2 mt-2 mb-2 ms-2">
+                                                    <span class="badge bg-secondary">
+                                                        {{ event.location }}
+                                                    </span>
+                                                    <span class="badge bg-secondary">
+                                                        {{ event.event_date|date:"d.m.Y H:i" }}
+                                                    </span>
+                                                    {% if event.is_archived %}
+                                                        <span class="badge bg-secondary">
+                                                            <i class="bi bi-archive me-1"></i> Zarchiwizowane
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="text-muted small ms-2">
+                                                    <div class="mb-1">
+                                                        Dodano: {{ event.created_at|date:"d.m.Y H:i" }}
+                                                    </div>
+                                                    <div>
+                                                        Edytowano: {{ event.updated_at|date:"d.m.Y H:i" }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {% if is_my_events %}
+                                            <div class="col-md-2 d-flex align-items-center justify-content-center p-3">
+                                                <div class="d-flex flex-column gap-2 w-100">
+                                                    <a href="{% url 'events:edit_event' event.id %}"
+                                                       class="btn btn-sm btn-warning">
+                                                        <i class="bi bi-pencil me-1"></i> Edytuj
+                                                    </a>
+                                                    <a href="{% url 'events:delete_event' event.id %}"
+                                                       class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-trash me-1"></i> Usuń
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% include "includes/pagination.html" %}
+
+                    {% else %}
+                        <div class="text-center mt-5" style="min-height: 194px">
+                            <i class="bi bi-info-circle display-6"></i>
+                            <h4 class="mt-3">Brak dostępnych wydarzeń</h4>
+                            <p class="mb-0">Sprawdź później lub utwórz nowe wydarzenie</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

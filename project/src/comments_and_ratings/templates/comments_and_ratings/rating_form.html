@@ -1,0 +1,68 @@
+<div class="rating-section border rounded p-3 bg-light mb-4 text-center mb-3">
+    <div class="text-center mb-3">
+        {% if average_rating %}
+            <h5>Średnia ocena: {{ average_rating }}/10</h5>
+
+            {% for i in ""|center:stars_data.full %}
+                <span class="text-warning fs-4">★</span>
+            {% endfor %}
+
+            {% if stars_data.half %}
+                <span class="text-warning fs-4">⯪</span>
+            {% endif %}
+
+            {% for i in ""|center:stars_data.empty %}
+                <span class="text-muted fs-4">★</span>
+            {% endfor %}
+            <small class="text-muted">({{ ratings_count }} ocen)</small>
+        {% else %}
+            {% for i in "1234567890" %}
+                <span class="text-muted fs-4">★</span>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+    {% if user.is_authenticated %}
+        <div class="rating-stars mb-3 text-center">
+            <h4>Twoja ocena: <span id="current-rating-value">{% if user_rating %}{{ user_rating }}{% else %}---{% endif %}</span>/10</h4>
+            <form method="post" action="{% url 'comments_and_ratings:add_rating' app_label=content_type.app_label model_name=content_type.model object_id=object_id %}">
+                {% csrf_token %}
+                <div class="star-rating d-flex flex-row-reverse justify-content-center gap-1">
+                    {% for i in "9876543210" %}
+                        {% with star=i|add:"1" %}
+                            <input type="radio"
+                                   id="star{{ star }}"
+                                   name="rating"
+                                   value="{{ star }}"
+                                   {% if user_rating|stringformat:"i" == star %}checked{% endif %}
+                                   onchange="showSubmitButton()">
+                            <label for="star{{ star }}" title="{{ star }} gwiazdek">★</label>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-2">
+                    <button type="submit"
+                            class="btn btn-sm btn-primary"
+                            id="submit-rating-button"
+                            style="display: none;">
+                        Zapisz ocenę
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated and user_rating_id %}
+        <div class="text-center">
+            <a href="{% url 'comments_and_ratings:delete_rating' pk=user_rating_id %}" class="btn btn-outline-danger btn-sm">Usuń moją ocenę</a>
+        </div>
+    {% endif %}
+
+<script>
+function showSubmitButton() {
+    const btn = document.getElementById("submit-rating-button");
+    if (btn) {
+        btn.style.display = "inline-block";
+    }
+}
+</script>

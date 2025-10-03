@@ -1,0 +1,15 @@
+<div class="pagination">
+    <span class="current">
+        <h2>Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</h2>
+    </span>
+
+    {% if page_obj.has_previous %}
+        <a href="?{{ page_param }}=1{% for key, value in request.GET.items %}{% if key != page_param %}&{{ key }}={{ value }}{% endif %}{% endfor %}">« Pierwsza</a>
+        <a href="?{{ page_param }}={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != page_param %}&{{ key }}={{ value }}{% endif %}{% endfor %}">‹ Poprzednia</a>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        <a href="?{{ page_param }}={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != page_param %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Następna ›</a>
+        <a href="?{{ page_param }}={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != page_param %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Ostatnia »</a>
+    {% endif %}
+</div>

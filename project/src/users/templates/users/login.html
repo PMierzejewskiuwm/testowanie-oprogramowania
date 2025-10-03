@@ -1,0 +1,26 @@
+<form id="modal-login-form" method="post" action="{% url 'users:login' %}">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">Logowanie</h5>
+        <button type="button" id="loginModalClose" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+    </div>
+
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="modal-email" class="form-label">Email</label>
+            <input type="email" id="modal-email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="modal-password" class="form-label">Hasło</label>
+            <input type="password" id="modal-password" name="password" class="form-control" required>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'users:password_reset' %}" class="btn btn-light">Zapomniałeś hasła?</a>
+        </div>
+    </div>
+
+    <div class="modal-footer d-flex flex-column align-items-center gap-2">
+        <button type="submit" class="btn btn-primary">Zaloguj się</button>
+        <a href="{% url 'users:register' %}" class="btn btn-secondary">Zarejestruj się</a>
+    </div>
+</form>

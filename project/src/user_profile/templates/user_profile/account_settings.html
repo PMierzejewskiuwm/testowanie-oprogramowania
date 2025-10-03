@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <h2>Ustawienia konta</h2>
+
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="account-options text-center mt-4">
+    <a href="{% url 'user_profile:password_change' %}" class="btn btn-warning">Zmień hasło</a>
+    <a href="{% url 'user_profile:email_change' %}" class="btn btn-info">Zmień email</a>
+    <a href="{% url 'user_profile:username_change' %}" class="btn btn-secondary">Zmień nazwę użytkownika</a>
+  </div>
+
+    <div class="text-center mt-4">
+    <a href="{% url 'user_profile:profile' %}" class="btn btn-outline-primary">
+      Powrót do profilu
+    </a>
+    </div>
+{% endblock %}

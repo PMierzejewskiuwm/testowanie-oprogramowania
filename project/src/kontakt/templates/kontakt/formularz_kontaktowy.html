@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}Formularz kontaktowy{% endblock %}
+
+{% block content %}
+<div class="form-container" style="margin: 0 auto; float: center;" id="about-page">
+  <h1>Skontaktuj się z nami 🗨</h1>
+    <p>Chcesz promować swój dom, lokal, mieszkanie czy gospodarstwo agroturystyczne? <br>
+    Skontaktuj się z nami – mamy rozwiązania dla Ciebie!</p>
+  <p><strong>Wiadomość zostanie wysłana na nasz adres e-mail serwisowy.</strong></p>
+    <div style="float:left;" class="form-container">
+  <form method="POST">
+	  {% csrf_token %}
+	  {% for field in form %}
+	  {% include 'includes/form_field.html' with field=field %}
+	  {% endfor %}
+	  {{ form.media }}
+      <button type="submit" class="mt-4 btn btn-primary" style="width: 100%;">
+          <center>Wyślij wiadomość</center>
+      </button>
+  </form></div>
+    <div style="margin-top: 100px; height: 650px;">
+  <h2>Gdzie można nas znaleźć</h2>
+  <center><div class="rounded mx-auto d-block" id="map" style="height:300px; width:400px;"></div>
+    <script>var map = L.map('map').setView([53.77624314030692, 20.47570054832161], 13);
+                    // add an OpenStreetMap tile layer
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+    </script>
+  </center>
+  {{ result }}
+</div>
+    {% if messages %}
+<div class="messages" style="text-align: center;">
+    {% for message in messages %}
+    <div class="message message-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+</div>
+{% endblock %}

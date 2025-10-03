@@ -1,0 +1,90 @@
+{% extends 'layout.html' %}
+{% load querystring_tags %}
+{% load thumbnail %}
+
+{% block title %}Galerie Zdjęć{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    {% if messages %}
+        <div class="container my-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h2 class="mb-4 text-center">
+        {% if is_all_galleries %}
+            Wszystkie Galerie Zdjęć
+        {% elif is_my_galleries %}
+            Moje Galerie Zdjęć
+        {% endif %}
+    </h2>
+
+    <div class="row">
+        <aside class="col-md-3 mb-4">
+            <p><strong>Filtry</strong></p>
+            <form method="get" action="" class="bg-light p-3 rounded shadow-sm">
+                <div class="mb-3">
+                    <label class="form-label">Sortuj według:</label>
+                    <select name="sort_by" class="form-select">
+                        {% for option in sort_options %}
+                            <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>
+                                {{ option.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-primary">Filtruj</button>
+                    <a href="{% if is_all_galleries %}{% url 'photo_gallery:gallery_list' filter='all' %}{% else %}{% url 'photo_gallery:user_gallery_list' %}{% endif %}" class="btn btn-secondary">Wyczyść</a>
+                </div>
+            </form>
+        </aside>
+
+        <section class="col-md-9">
+            <div class="row mb-4 justify-content-center">
+                <div class="col-md-10">
+                    <form method="get" action="" class="d-flex gap-2 align-items-center">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               placeholder="Wyszukaj po nazwie..."
+                               value="{{ request.GET.search }}">
+                        <button type="submit" class="btn btn-primary" style="height: 50px; width: 110px">Wyszukaj</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if galleries %}
+                <div class="galleries-grid display_event">
+                    {% for gallery in galleries %}
+                        <div class="gallery-card displaymanage">
+                            <a href="{{ gallery.get_absolute_url }}">
+                                {% thumbnail gallery.thumbnail "400x300" crop="center" as im %}
+                                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ gallery.title }}" class="gallery-thumbnail">
+                                {% endthumbnail %}
+                                <div class="gallery-info">
+                                    <h3>{{ gallery.title }}</h3>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% include "includes/pagination.html" %}
+            {% else %}
+                <div class="alert alert-info text-center">
+                <div class="py-4">
+                    <i class="bi bi-info-circle display-6"></i>
+                    <h4 class="mt-3">Brak dostępnych galerii </h4>
+                    <p class="mb-0">Sprawdź później lub utwórz nową galerię</p>
+                </div>
+            {% endif %}
+
+        </section>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% if object %}Edytuj{% else %}Dodaj{% endif %} Galerię{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{% if object %}Edytuj{% else %}Dodaj nową{% endif %} galerię</h2>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            {% include 'includes/form_field.html' with field=field %}
+            {% if field.name == 'thumbnail' %}
+                <small class="form-text">Wybierz reprezentatywne zdjęcie dla całej galerii</small>
+            {% endif %}
+        {% endfor %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Zapisz zmiany{% else %}Utwórz galerię{% endif %}
+            </button>
+            <a href="{% url 'photo_gallery:gallery_list' %}" class="btn btn-secondary">Anuluj</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

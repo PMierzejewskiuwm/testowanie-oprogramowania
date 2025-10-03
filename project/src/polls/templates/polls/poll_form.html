@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% load static %}
+{% load edit_tags %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4">Utwórz nową ankietę</h1>
+  <nav class="mb-3">
+    <a href="{% url 'polls:list_poll' %}" class="btn btn-secondary">Powrót do listy ankiet</a>
+  </nav>
+
+  <form method="post" id="poll-form">
+    {% csrf_token %}
+
+    <div class="mb-3 mt-4">
+      {{ form.question.label_tag }}
+      {{ form.question }}
+      {{ form.question.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.end_date.label_tag }}
+      {{ form.end_date }}
+      {{ form.end_date.errors }}
+    </div>
+    <div class="d-flex flex-column justify-content-start align-items-start mb-3">
+    <h2 class="mt-5"><i>Opcje odpowiedzi:</i></h2>
+    <p class="text-muted"><small class="text-muted">Minimum 2, maksymalnie 8 odpowiedzi.</small></p>
+    </div>
+    <div id="choices-container"
+         data-min-forms="{{ choices.min_num }}"
+         data-max-forms="{{ choices.max_num }}"
+         class="mb-3">
+      {{ choices.management_form }}
+      <ul id="choices-list" class="list-unstyled">
+        {% for choice_form in choices %}
+          <li class="choice-item mb-3">
+            {{ choice_form.text }}
+            {{ choice_form.text.errors }}
+          </li>
+        {% endfor %}
+      </ul>
+      <button type="button" id="add-choice" class="btn btn-outline-primary me-2">+ Dodaj opcję</button>
+      <button type="button" id="remove-choice" class="btn btn-outline-danger">– Usuń opcję</button>
+    </div>
+    <div class="mb-3">
+      {{ form.captcha }}
+      {{ form.captcha.errors }}
+    </div>
+    <button type="submit" class="btn btn-primary">Zapisz ankiete</button>
+  </form>
+
+  <script src="{% static 'polls/js/poll_form.js' %}"></script>
+</div>
+{% endblock %}

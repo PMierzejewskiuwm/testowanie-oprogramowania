@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="about-page">
+  <h1>🌍 O Serwisie</h1>
+  <p>Witamy w naszym serwisie turystyczno-wypoczynkowym!  Znajdziesz tu szeroki zakres informacji i usług dla wszystkich miłośników podróży i wypoczynku.</p>
+
+  <h2>📌 Oferta Serwisu</h2>
+  <ul>
+    <li>Opisy miejscowości turystycznych i wypoczynkowych – zarówno nad morzem, w górach, jak i w głębi lądu</li>
+    <li> Przewodniki z opisami miejsc, które warto odwiedzić podczas urlopu – niezależnie czy preferujesz plażowanie czy aktywny wypoczynek</li>
+    <li> <a href="{% url 'events:list_event' %}">Lista wydarzeń oraz imprez</a> odbywających się w trakcie wakacyjnego wypoczynku</li>
+    <li><a href="{% url 'announcements:list_announcement' %}">Miejsca na nocleg</a> z różnorodnymi propozycjami</li>
+    <li> Opisy dojazdu z zaznaczonymi trasami i mapami, zarówno dla rezerwatów przyrody, jak i obiektów wypoczynkowych</li>
+  </ul>
+
+  <h2>🚀 Możliwości dla Użytkowników</h2>
+  <ul>
+    <li> <a href="{% url 'announcements:create_announcement' %}">Dodawanie</a> i przeglądanie darmowych ogłoszeń wynajmu z danymi kontaktowymi oraz galerią zdjęć – od komfortowych mieszkań, przez domki letniskowe, po gospodarstwa agroturystyczne</li>
+    <li><a href="{% url 'events:create_event' %}">Dodawanie</a> i przeglądanie wydarzeń oraz imprez w okolicy wynajmowanych obiektów</li>
+    <li> Współtworzenie serwisu – niezależnie czy szukasz miejsca na wypoczynek, czy jesteś wynajmującym obiekt</li>
+    <li> Dodawanie i udział w ankietach związanych z wypoczynkiem</li>
+  </ul>
+
+  <p>📝 Dla Państwa wygody przygotowaliśmy intuicyjne formularze, dzięki którym bez trudu dodacie swoje ogłoszenie wynajmu lub informacje o wydarzeniach w regionie, co z pewnością zachęci potencjalnych klientów.</p>
+
+  <p>⭐ Nasz serwis oferuje również system ocen i komentarzy. Jeśli spotkaliście coś miłego lub pozytywnie zaskakującego podczas wypoczynku, podzielcie się swoimi doświadczeniami, aby pomóc innym w planowaniu wakacji czy urlopu.</p>
+</div>
+{% endblock %}

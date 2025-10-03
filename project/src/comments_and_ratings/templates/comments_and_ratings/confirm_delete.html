@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">
+                {% if is_comment %}
+                    Potwierdź usunięcie komentarza
+                {% else %}
+                    Potwierdź usunięcie oceny
+                {% endif %}
+            </h2>
+            <p class="card-text">
+                {% if is_comment %}
+                    Czy na pewno chcesz usunąć swój komentarz?
+                {% else %}
+                    Czy na pewno chcesz usunąć swoją ocenę?
+                {% endif %}
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-flex gap-2" style="margin-left: 37.5%">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        {% if is_comment %}
+                            Tak, usuń komentarz
+                        {% else %}
+                            Tak, usuń ocenę
+                        {% endif %}
+                    </button>
+                    <a href="javascript:void(0);"  onclick="window.history.back();" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Anuluj
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

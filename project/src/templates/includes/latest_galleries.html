@@ -1,0 +1,24 @@
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Najnowsze galerie</h4>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for gallery in galleries %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-center">
+                <img src="{{ gallery.thumbnail.url }}" alt="{{ gallery.title }}"
+                     class="rounded me-3" width="50" height="40" style="object-fit: cover;">
+                <a href="{{ gallery.get_absolute_url }}" class="text-decoration-none">
+                    {{ gallery.title }}
+                </a>
+            </div>
+            <div class="text-end">
+                    <div class="text-muted small">Data utworzenia</div>
+                    <div class="text-muted">{{ gallery.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">Brak dostępnych galerii</li>
+        {% endfor %}
+    </ul>
+</div>

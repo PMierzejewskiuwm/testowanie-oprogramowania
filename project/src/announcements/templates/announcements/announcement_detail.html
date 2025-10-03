@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+{% load edit_tags %}
+{% load thumbnail %}
+
+{% block title %}{{ announcement.title }} - Szczegóły{% endblock %}
+
+{% block content %}
+
+<div class="container my-5">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="bg-light rounded shadow-sm p-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between 
+                align-items-start align-items-md-center mb-4 text-primary">
+        <h1 class="display-5 fw-bold text-break mb-3 mb-md-0" style="max-width: 100%;">{{ announcement.title }}</h1>
+        {% edit_tag 'announcements' 'announcement' announcement.id 'bi-tools' 'Edytuj ogłoszenie' %}
+    </div>
+    
+    <div class="row g-4 align-items-center">
+
+      <div class="col-lg-6 order-lg-2 d-flex">
+        <div class="bg-white border rounded shadow-sm p-3 h-100 w-100 d-flex flex-column justify-content-center">
+          <h2 class="fw-bold mb-3" style="color: #b5895a;">Opis ogłoszenia</h2>
+          <p class="fs-5 fw-semibold text-dark mb-0" style="white-space: normal; word-break: break-word;">
+            {{ announcement.description }}
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-6 order-lg-1 d-flex">
+        <div class="bg-white border rounded shadow-sm p-3 h-100 w-100 d-flex align-items-center">
+          <table class="table table-sm mb-0 align-middle" style="margin-bottom: 0;">
+            <tbody>
+              <tr>
+                <th class="text fw-semibold" style="width: 40%; color: #b5895a; vertical-align: middle; text-align: center;">Autor</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.get_creator_name }}</td>
+              </tr>
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Data dodania</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.date|date:"Y-m-d H:i" }}</td>
+              </tr>
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Miejsce</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.place }}</td>
+              </tr>
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Ilość pokoi</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.rooms }}</td>
+              </tr>
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Cena</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.price }}</td>
+              </tr>
+              {% if announcement.archive_date %}
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Data archiwizacji</th>
+                <td class="fw-semibold text-dark" style="vertical-align: middle; text-align: center;">{{ announcement.archive_date|date:"Y-m-d H:i" }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                <th class="text fw-bold" style="color: #b5895a; vertical-align: middle; text-align: center;">Zdjęcie</th>
+                <td style="vertical-align: middle; text-align: center;">
+                  {% if announcement.banner %}
+                    {% thumbnail announcement.banner "320x240" crop="center" as im %}
+                        <img src="{{ im.url }}" class="rounded img-fluid shadow-sm" alt="{{ announcement.title }}">
+                    {% endthumbnail %}
+                  {% else %}
+                    <div class="d-flex justify-content-center align-items-center bg-secondary-subtle text-muted rounded border" style="height: 180px;">
+                      Brak zdjęcia
+                    </div>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    {% if user.is_authenticated and announcement.creator == user %}
+    <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+      <form method="post" action="{% url 'announcements:archive_announcement_toggle' pk=announcement.pk %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary">
+          {% if announcement.archive_date %}
+            Otwórz ogłoszenie
+          {% else %}
+            Zamknij ogłoszenie
+          {% endif %}
+        </button>
+      </form>
+      <a href="{% url 'announcements:edit_announcement' pk=announcement.pk %}" class="btn btn-outline-warning">Edytuj ogłoszenie</a>
+      <a href="{% url 'announcements:delete_announcement' pk=announcement.pk %}" class="btn btn-outline-danger">Usuń ogłoszenie</a>
+    </div>
+    {% endif %}
+
+    <div class="mt-4 text-center">
+      <a href="{% url 'announcements:list_announcement' %}" class="btn btn-outline-info">Powrót do listy</a>
+    </div>
+
+  </div>
+
+  <section class="user-feedback-section py-4 mt-5 bg-white border rounded shadow-sm p-4">
+    <h2 class="text fw-bold" style="color: #b5895a;">Opinie:</h2>
+    {% include "comments_and_ratings/rating_form.html" %}
+    {% include "comments_and_ratings/comment_list.html" %}
+  </section>
+
+</div>
+
+{% endblock %}

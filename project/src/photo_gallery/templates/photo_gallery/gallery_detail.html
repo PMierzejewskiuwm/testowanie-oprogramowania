@@ -1,0 +1,278 @@
+{% extends 'layout.html' %}
+{% load edit_tags %}
+{% load thumbnail %}
+
+{% block title %}{{ gallery.title }} - Szczegóły{% endblock %}
+
+{% block content %}
+
+<div class="container my-5 bg-light rounded p-4 shadow-sm">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+    <div class="d-flex flex-column flex-md-row justify-content-between 
+                align-items-start align-items-md-center mb-4 text-primary">
+        <h1 class="display-5 fw-bold text-break mb-3 mb-md-0" style="max-width: 100%;">{{ gallery.title }}</h1>
+        {% edit_tag 'photo_gallery' 'gallery' gallery.id 'bi-tools' 'Edytuj galerię' %}
+    </div>
+
+  <div class="row g-4">
+     <div class="row g-4 align-items-start">
+
+        <div class="col-lg-4">
+          <div class="bg-white border rounded shadow-sm p-3 mb-4">
+            <table class="table table-sm mb-0 align-middle">
+              <tbody>
+                <tr>
+                  <th class="fw-semibold text-center" style="color: #b5895a;">Autor</th>
+                  <td class="fw-semibold text-dark text-center">{{ gallery.get_creator_name }}</td>
+                </tr>
+                <tr>
+                  <th class="fw-bold text-center" style="color: #b5895a;">Utworzono</th>
+                  <td class="fw-semibold text-dark text-center">{{ gallery.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                <tr>
+                  <th class="fw-bold text-center" style="color: #b5895a;">Ostatnia aktualizacja</th>
+                  <td class="fw-semibold text-dark text-center">{{ gallery.updated_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          {% if gallery.description %}
+          <div class="bg-white border rounded shadow-sm p-4 mb-4" style="word-wrap: break-word;">
+            <h2 class="fw-bold mb-3" style="color: #b5895a;">Opis galerii</h2>
+            <p class="fs-5 text-dark fw-semibold" style="white-space: normal; word-break: break-word;">
+              {{ gallery.description }}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+     </div>
+  </div>
+
+  <div class="bg-white border rounded shadow-sm p-4 mb-4">
+    <h2 class="fw-bold mb-4" style="color: #b5895a;">Zdjęcia w galerii</h2>
+
+    {% if photos %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+      {% for photo in photos %}
+      <div class="col">
+        <a href="{% url 'photo_gallery:photo_detail' slug=gallery.slug pk=photo.pk %}"
+           class="d-block bg-info-subtle rounded shadow-sm overflow-hidden p-2" style="height: 220px;">
+          {% if photo.thumbnail %}
+            {% thumbnail photo.thumbnail "300x180" crop="center" as im %}
+              <img class="img-fluid rounded photo-thumbnail"
+                   src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+                   data-full="{{ photo.image.url }}"
+                   alt="{{ photo.title }}"
+                   style="width: 100%; height: 180px; object-fit: cover;">
+            {% endthumbnail %}
+          {% else %}
+            <img class="img-fluid rounded photo-thumbnail"
+                 src="{{ photo.image.url }}"
+                 data-full="{{ photo.image.url }}"
+                 alt="{{ photo.title }}"
+                 style="width: 100%; height: 180px; object-fit: cover;">
+          {% endif %}
+          <span class="photo-title d-block fw-semibold text-dark mt-2 px-1 text-truncate">{{ photo.title }}</span>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% include "includes/pagination.html" %}
+
+    {% else %}
+    <div class="text-center py-5">
+      <p>Ta galeria nie zawiera jeszcze żadnych zdjęć.</p>
+      {% if is_owner %}
+      <a href="{% url 'photo_gallery:photo_add' slug=gallery.slug %}" class="btn btn-outline-success">Dodaj pierwsze zdjęcie</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if is_owner %}
+  <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+    <a href="{% url 'photo_gallery:gallery_update' slug=gallery.slug %}" class="btn btn-outline-warning">Edytuj galerię</a>
+    <a href="{% url 'photo_gallery:photo_add' slug=gallery.slug %}" class="btn btn-outline-success">Dodaj zdjęcie</a>
+    <a href="{% url 'photo_gallery:gallery_delete' slug=gallery.slug %}" class="btn btn-outline-danger">Usuń galerię</a>
+  </div>
+  {% endif %}
+
+  <div class="text-center mb-5">
+    <a href="{% if is_all_galleries %}{% url 'photo_gallery:gallery_list' filter='all' %}{% else %}{% url 'photo_gallery:gallery_list' %}{% endif %}" class="btn btn-outline-info">Powrót do listy galerii</a>
+  </div>
+
+</div>
+
+<section class="mt-5 bg-white border rounded shadow-sm p-4">
+  <h2 class="fw-bold mb-4" style="color: #b5895a;">Opinie:</h2>
+  {% include "comments_and_ratings/rating_form.html" %}
+  {% include "comments_and_ratings/comment_list.html" %}
+</section>
+
+<div id="lightboxContainer">
+  <div id="lightboxModal" class="lightbox-modal">
+    <span class="close">&times;</span>
+    <div class="lightbox-content-wrapper">
+      <img class="lightbox-content" id="lightboxImage" alt="">
+      <div id="caption" class="caption"></div>
+    </div>
+    <a class="prev">&#10094;</a>
+    <a class="next">&#10095;</a>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const thumbnails = document.querySelectorAll('.photo-thumbnail');
+  const detailUrls = [];
+
+  thumbnails.forEach((img) => {
+    detailUrls.push(img.parentElement.getAttribute('href'));
+  });
+
+  const modal = document.getElementById('lightboxModal');
+  const modalImg = document.getElementById("lightboxImage");
+  const captionText = document.getElementById("caption");
+  const closeBtn = document.querySelector('.close');
+  const nextBtn = document.querySelector('.next');
+  const prevBtn = document.querySelector('.prev');
+
+  let currentIndex = 0;
+
+  function openModal(index) {
+    if (index < 0 || index >= thumbnails.length) return;
+    currentIndex = index;
+    modal.style.display = "flex";
+    modalImg.src = thumbnails[index].getAttribute('data-full') || thumbnails[index].src;
+    captionText.innerText = thumbnails[index].alt;
+  }
+
+  thumbnails.forEach((img, index) => {
+    img.parentElement.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal(index);
+    });
+  });
+
+  modalImg.addEventListener('click', function () {
+    window.location.href = detailUrls[currentIndex];
+  });
+
+  function showNext() {
+    currentIndex = (currentIndex + 1) % thumbnails.length;
+    openModal(currentIndex);
+  }
+
+  function showPrev() {
+    currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+    openModal(currentIndex);
+  }
+
+  nextBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    showNext();
+  });
+
+  prevBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    showPrev();
+  });
+
+  closeBtn.addEventListener('click', function() {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (modal.style.display === "flex") {
+      if (e.key === "ArrowRight") {
+        showNext();
+      } else if (e.key === "ArrowLeft") {
+        showPrev();
+      } else if (e.key === "Escape") {
+        modal.style.display = "none";
+      }
+    }
+  });
+});
+</script>
+
+<style>
+  #lightboxContainer .lightbox-modal {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+  #lightboxContainer .lightbox-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90%;
+    max-height: 80%;
+  }
+  #lightboxContainer .lightbox-content {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin-bottom: 10px;
+      min-height:700px ;
+      min-width: 700px;
+  }
+  #lightboxContainer .caption {
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
+  }
+  #lightboxContainer .close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #lightboxContainer .prev,
+  #lightboxContainer .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    padding: 16px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 40px;
+    user-select: none;
+  }
+  #lightboxContainer .prev {
+    left: 10px;
+  }
+  #lightboxContainer .next {
+    right: 10px;
+  }
+</style>
+{% endblock %}

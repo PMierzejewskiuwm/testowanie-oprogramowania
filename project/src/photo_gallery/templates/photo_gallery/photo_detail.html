@@ -1,0 +1,132 @@
+{% extends 'layout.html' %}
+{% load thumbnail %}
+
+{% block title %}{{ photo.title }} - Szczegóły{% endblock %}
+
+{% block content %}
+<div class="container my-5 bg-light rounded p-4 shadow-sm">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h3 class="text-primary fw-bold mb-4">Szczegóły zdjęcia</h3>
+
+  <div class="row g-4 align-items-start">
+    <div class="col-md-6 d-flex flex-column gap-4">
+      <div class="bg-white border rounded shadow-sm p-4 text-center">
+        <table class="table table-sm mb-0 align-middle text-center">
+          <tbody>
+            <tr>
+              <th class="fw-semibold" style="width: 40%; color: #b5895a;">Nazwa zdjęcia</th>
+              <td class="fw-semibold text-dark">{{ photo.title }}</td>
+            </tr>
+            <tr>
+              <th class="fw-semibold" style="color: #b5895a;">Galeria</th>
+              <td class="fw-semibold text-dark">{{ photo.gallery.title }}</td>
+            </tr>
+            <tr>
+              <th class="fw-semibold" style="color: #b5895a;">Data dodania</th>
+              <td class="fw-semibold text-dark">{{ photo.uploaded_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {% if photo.description %}
+      <div class="bg-white border rounded shadow-sm p-4 text-dark" style="word-break: break-word;">
+        <h2 class="text fw-bold" style="color: #b5895a;">Opis zdjęcia</h2>
+        <p class="fs-5 fw-semibold" style="white-space: normal;">
+          {{ photo.description }}
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-white border rounded shadow-sm p-3 text-center d-flex flex-column align-items-center" style="min-height: 500px;">
+        <h2 class="text fw-bold" style="color: #b5895a;">Zdjęcie</h2>
+        {% thumbnail photo.image "800x600" upscale=False as im %}
+          <img id="photo" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ photo.title }}" class="img-fluid rounded shadow-sm" style="max-height: 80vh; object-fit: contain; width: 100%;">
+        {% endthumbnail %}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+    <a href="{% if is_all_galleries %}{% url 'photo_gallery:gallery_list' filter='all' %}{% else %}{% url 'photo_gallery:gallery_list' %}{% endif %}" class="btn btn-outline-info">Powrót do listy galerii</a>
+    {% if is_owner %}
+      <a href="{% url 'photo_gallery:photo_update' slug=photo.gallery.slug pk=photo.pk %}" class="btn btn-outline-warning">Edytuj zdjęcie</a>
+      <a href="{% url 'photo_gallery:photo_delete' slug=photo.gallery.slug pk=photo.pk %}" class="btn btn-outline-danger">Usuń zdjęcie</a>
+    {% endif %}
+  </div>
+</div>
+
+<section class="mt-5 bg-white border rounded shadow-sm p-4">
+  <h2 class="text fw-bold" style="color: #b5895a;">Opinie:</h2>
+  {% include "comments_and_ratings/rating_form.html" %}
+  {% include "comments_and_ratings/comment_list.html" %}
+</section>
+
+<div id="overlay">
+  <span id="close-btn">&times;</span>
+  <img src="{{ photo.image.url }}" alt="{{ photo.title }}">
+</div>
+
+<script>
+    document.getElementById("photo").addEventListener("click", function() {
+        document.getElementById("overlay").style.display = "flex";
+    });
+
+    document.getElementById("close-btn").addEventListener("click", function() {
+        document.getElementById("overlay").style.display = "none";
+    });
+
+    document.getElementById("overlay").addEventListener("click", function(e) {
+        if (e.target === this) {
+            this.style.display = "none";
+        }
+    });
+</script>
+
+<style>
+    #photo {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    #overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 11111;
+    }
+
+    #overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        transform: scale(1);
+        min-height:700px ;
+        min-width: 700px;
+    }
+
+    #close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 30px;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

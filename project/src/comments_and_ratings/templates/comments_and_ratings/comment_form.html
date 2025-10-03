@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        {% if is_reply %}
+            Edytuj odpowiedź
+        {% else %}
+            Edytuj komentarz
+        {% endif %}
+    </h2>
+
+    {% if is_reply and comment.parent_comment %}
+        <div class="alert alert-info">
+            Odpowiedź do komentarza: <strong>{{ comment.parent_comment.content|truncatewords:10 }}</strong>
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.content|add_class:"form-control" }}
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+            <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">Anuluj</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
