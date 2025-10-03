@@ -1,0 +1,12 @@
+vs code, python technologie
+projekt na zaliczenie, wybor projektu ktory sie robilo wczesniej albo githubowy opensourcowy
+do niego testy jednostkowe do backendu pytest i w selenium testy do frontendu
+
+mail do prowadzącego
+maciej.stanislawski@matkman.edu.pl
+
+odpalanie projektu Flask microblog:
+
+pip install -r requirements.txt
+flask db upgrade
+flask run 
